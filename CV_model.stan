@@ -1,24 +1,24 @@
 # The model specification
 model_string <- "
 data {
-	int<lower=0> N;
-	real y[N];
+    int<lower=0> N;
+    real y[N];
 }
 
 parameters {
-	real<lower=0> sigma;
-	real<lower=0> mu;
+    real<lower=0> sigma;
+    real<lower=0> mu;
 }
 
 model {
-	mu ~ normal(1, 1);
-	sigma ~ normal(0, 1);
-	y ~ lognormal(mu,sigma);
+    mu ~ normal(1, 1);
+    sigma ~ normal(0, 1);
+    y ~ lognormal(mu,sigma);
 }
 
 generated quantities {
-	real cv;
-	cv = sigma / mu;
+    real cv;
+    cv = sigma / mu;
 }"
 
 # Get data from somewhere: y = vector of datavalues

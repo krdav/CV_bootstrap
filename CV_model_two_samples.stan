@@ -61,7 +61,8 @@ unifHi2 <- sdY2 * 100
 data_list <- list(N1=length(y1), y1=y1, sdY1=sdY1, unifLo1=unifLo1, unifHi1=unifHi1,
                   N2=length(y2), y2=y2, sdY2=sdY2, unifLo2=unifLo2, unifHi2=unifHi2)
 modelfit <- stan(model_code=model_string, data=data_list,
-                 pars=c("mu1", "sigma1", "cv1", "mu2", "sigma2", "cv2", "cvdiff"), chains=3, iter=30000, warmup=10000)
+                 pars=c("mu1", "sigma1", "cv1", "mu2", "sigma2", "cv2", "cvdiff"),
+                 chains=3, iter=30000, warmup=10000)
 
 # Exploring run convergence and estimates:
 library("shinystan")

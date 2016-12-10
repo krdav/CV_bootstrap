@@ -43,7 +43,8 @@ unifHi <- sdlogY * 100
 
 data_list <- list(N=length(y), y=y, unifLo=unifLo, unifHi=unifHi)
 modelfit <- stan(model_code=model_string, data=data_list,
-                 pars=c("mu_log", "sigma_log", "mu", "sigma", "cv"), chains=3, iter=30000, warmup=10000)
+                 pars=c("mu_log", "sigma_log", "mu", "sigma", "cv"),
+                 chains=3, iter=30000, warmup=10000)
 
 # Exploring run convergence and estimates:
 library("shinystan")

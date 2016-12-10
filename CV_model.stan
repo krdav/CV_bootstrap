@@ -24,8 +24,8 @@ generated quantities {
   real<lower=0>  sigma;
   mu = exp(mu_log + sigma_log / 2);
   sigma = exp(sigma_log - 1) * exp(2 * mu_log + sigma_log);
-  // cv = (1.0 + 1.0 / (4.0 * N)) * sigma / mu; // Same as below
-  cv = (1.0 + 1.0 / (4.0 * N)) * sqrt(exp(sigma_log) - 1);
+  // cv = sigma / mu; // Same as below
+  cv = sqrt(exp(sigma_log) - 1);
 }"
 
 # Make some test data:

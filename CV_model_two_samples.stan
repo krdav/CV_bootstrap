@@ -34,8 +34,8 @@ real<lower=0>  cv1;
 real<lower=0>  cv2;
 real cvdiff;
 
-cv1 = (1.0 + 1.0 / (4.0 * N1)) * sigma1 / mu1;
-cv2 = (1.0 + 1.0 / (4.0 * N2)) * sigma2 / mu2;
+cv1 = sigma1 / mu1;
+cv2 = sigma2 / mu2;
 
 cvdiff = cv1 - cv2;
 }"

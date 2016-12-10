@@ -3,44 +3,47 @@ model_string <- "
 data {
   int<lower=0> N;
   real y[N];
-  real meanY;
-  real sdY;
-}
-transformed data {
-  real unifLo;
-  real unifHi;
-  real normalSigma;
-  unifLo = sdY / 100;
-  unifHi = sdY * 100;
-  normalSigma = sdY * 100;
+  real<lower=0> unifLo;
+  real<lower=0> unifHi;
 }
 parameters {
-  real<lower=0> sigma;
-  real<lower=0> mu;
+  real<lower=0> sigma_log;
+  real mu_log;
 }
 model {
-  // If we had some prior information on the variance,
-  // maybe it would make sence to make it follow a chisq distribution:
-  // sigma ~ chi_square(1);
-
-  // For now use a vague sigma prior:
-  sigma ~ uniform(unifLo, unifHi);
-  mu ~ normal(meanY, normalSigma);
-  y ~ lognormal(mu, sigma);
+  // Use vague priors:
+  sigma_log ~ uniform(unifLo, unifHi);
+  mu_log ~ uniform(-unifHi, unifHi);
+  y ~ lognormal(mu_log, sigma_log);
 }
 generated quantities {
-  real cv;
-  cv = sigma / mu;
+  // Generate mean and variance
+  // from the lognorm variables to calculate the CV:
+  real<lower=0>  cv;
+  real<lower=0>  mu;
+  real<lower=0>  sigma;
+  mu = exp(mu_log + sigma_log / 2);
+  sigma = exp(sigma_log - 1) * exp(2 * mu_log + sigma_log);
+  // cv = (1.0 + 1.0 / (4.0 * N)) * sigma / mu; // Same as below
+  cv = (1.0 + 1.0 / (4.0 * N)) * sqrt(exp(sigma_log) - 1);
 }"
 
 # Make some test data:
 library(perbbNovoMisc)
-y <- draw_one_sampleCV_data(n_data1 = 30, mu1 = 1, std1 = 1, simdist = 'lognorm')$X1
+y <- draw_one_sampleCV_data(n_data1 = 100, mu1 = 1, std1 = 1, simdist = 'lognorm')$X1
 
 # Running the model:
 library(rstan)
-modelfit <- stan(model_code=model_string, data=list(N=length(y), y=y, meanY=mean(y), sdY=sd(y)),
-                 pars=c("mu", "sigma", "cv"), chains=3, iter=30000, warmup=10000)
+meanY <- mean(y)
+sdY <- sd(y)
+meanlogY <- log(meanY) - 0.5 * log(sdY^2 / meanY^2 + 1)
+sdlogY <- sqrt(log(sdY^2 / meanY^2 + 1))
+unifLo <- sdlogY / 100
+unifHi <- sdlogY * 100
+
+data_list <- list(N=length(y), y=y, unifLo=unifLo, unifHi=unifHi)
+modelfit <- stan(model_code=model_string, data=data_list,
+                 pars=c("mu_log", "sigma_log", "mu", "sigma", "cv"), chains=3, iter=30000, warmup=10000)
 
 # Exploring run convergence and estimates:
 library("shinystan")
